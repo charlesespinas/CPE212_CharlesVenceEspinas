@@ -1,0 +1,39 @@
+---
+- hosts: ubuntu
+  become: true
+  tasks:
+
+    - name: update repository index
+      apt:
+        update_cache: yes
+
+    - name: install apache2 package
+      apt:
+        name: apache2
+
+    - name: add PHP support for apache
+      apt:
+        name: libapache2-mod-php
+
+- hosts: centos
+  become: true
+  tasks:
+
+    - name: update repository index
+      dnf:
+        update_cache: yes
+
+    - name: install httpd package
+      dnf:
+        name: httpd
+
+    - name: add PHP support for apache
+      dnf:
+        name: php
+        state: present
+
+    - name: start httpd service
+      service:
+        name: httpd
+        state: started
+        enabled: true
