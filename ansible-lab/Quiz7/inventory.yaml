@@ -1,0 +1,27 @@
+all:
+  children:
+
+      ubuntu:
+        hosts:
+          server1:
+            ansible_host: 192.168.56.108
+            os_type: Ubuntu
+
+          server2:
+            ansible_host: 192.168.56.109
+            os_type: Ubuntu
+
+      centos:
+        hosts:
+          centOS:
+            ansible_host: 192.168.56.104
+            os_type: CentOS
+
+      linuxservers:
+        children:
+          ubuntu:
+            vars:
+              ansible_user: charles-vence-espinas
+          centos:
+            vars:
+              ansible_user: charles-vence-espinas
