@@ -1,0 +1,11 @@
+---
+- name: Install Samba
+  package:
+    name: samba
+    state: present
+
+- name: Start Samba Service
+  service:
+    name: smb
+    state: started
+    enabled: true
