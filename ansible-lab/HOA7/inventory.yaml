@@ -3,6 +3,11 @@ all:
     ansible_user: charles-vence-espinas
   children:
 
+      workstations:
+        hosts:
+          server1:
+            ansible_host: 192.168.56.108
+            os_type: Ubuntu
       web_servers:
         hosts:
           server1:
