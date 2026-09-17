@@ -1,0 +1,6 @@
+---
+- name: Install and Configure Nagios Core across Ubuntu and CentOS
+  hosts: all
+  become: true
+  roles:
+    - nagios

@@ -1,0 +1,79 @@
+---
+- name: Install build dependencies on Ubuntu
+  apt:
+    name:
+      - autoconf
+      - gcc
+      - libc6
+      - make
+      - wget
+      - unzip
+      - apache2
+      - php
+      - libapache2-mod-php
+      - libgd-dev
+      - openssl
+      - libssl-dev
+    state: present
+    update_cache: yes
+
+- name: Create nagios user and group
+  user:
+    name: nagios
+    system: yes
+
+- name: Download Nagios Core tarball
+  get_url:
+    url: https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.4.14.tar.gz
+    dest: /tmp/nagios.tar.gz
+
+- name: Extract Nagios source tarball
+  unarchive:
+    src: /tmp/nagios.tar.gz
+    dest: /tmp/
+    remote_src: yes
+
+- name: Compile and install Nagios Core
+  shell: |
+    ./configure --with-httpd-conf=/etc/apache2/sites-enabled
+    make all
+    make install-groups-users
+    usermod -a -G nagios www-data
+    make install
+    make install-daemoninit
+    make install-commandmode
+    make install-config
+    make install-webconf
+  args:
+    chdir: /tmp/nagios-4.4.14
+
+- name: Enable Apache modules
+  command: a2enmod rewrite cgi
+
+- name: Restart Apache and Nagios on Ubuntu
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  loop:
+    - apache2
+    - nagios
+
+- name: Download Nagios Plugins tarball
+  get_url:
+    url: https://github.com/nagios-plugins/nagios-plugins/releases/download/release-2.4.6/nagios-plugins-2.4.6.tar.gz
+    dest: /tmp/nagios-plugins.tar.gz
+
+- name: Extract Nagios Plugins
+  unarchive:
+    src: /tmp/nagios-plugins.tar.gz
+    dest: /tmp/
+    remote_src: yes
+
+- name: Compile and install Nagios Plugins
+  shell: |
+    ./configure
+    make
+    make install
+  args:
+    chdir: /tmp/nagios-plugins-2.4.6
