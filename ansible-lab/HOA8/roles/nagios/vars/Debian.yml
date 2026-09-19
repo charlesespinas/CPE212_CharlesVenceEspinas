@@ -1,0 +1,27 @@
+---
+apache_service: apache2
+apache_user: www-data
+apache_conf_dir: /etc/apache2/sites-enabled
+
+nagios_packages:
+  - autoconf
+  - build-essential
+  - gcc
+  - make
+  - libc6
+  - wget
+  - tar
+  - unzip
+  - bc
+  - gawk
+  - dc
+  - gettext
+  - apache2
+  - apache2-utils
+  - php
+  - libapache2-mod-php
+  - libgd-dev
+  - openssl
+  - libssl-dev
+  - snmp
+  - libnet-snmp-perl

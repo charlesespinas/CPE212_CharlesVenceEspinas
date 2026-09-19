@@ -1,0 +1,28 @@
+---
+apache_service: httpd
+apache_user: apache
+apache_conf_dir: /etc/httpd/conf.d
+
+nagios_packages:
+  - gcc
+  - glibc
+  - glibc-common
+  - make
+  - gettext
+  - automake
+  - autoconf
+  - wget
+  - tar
+  - unzip
+  - bc
+  - gawk
+  - openssl-devel
+  - net-snmp
+  - net-snmp-utils
+  - httpd
+  - httpd-tools
+  - php
+  - gd
+  - gd-devel
+  - perl
+  - python3-libselinux

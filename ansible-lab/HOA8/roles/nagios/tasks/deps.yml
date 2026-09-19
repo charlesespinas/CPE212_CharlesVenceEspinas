@@ -1,0 +1,43 @@
+---
+- name: Update apt cache (Debian family)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install dnf-plugins-core (RedHat family)
+  ansible.builtin.dnf:
+    name: dnf-plugins-core
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Check whether the CRB repository is defined (RedHat family)
+  ansible.builtin.shell: dnf repolist --all | grep -q '^crb '
+  register: crb_check
+  changed_when: false
+  failed_when: false
+  when: ansible_os_family == "RedHat"
+
+- name: Define the CRB repository if the VM does not have it (RedHat family)
+  ansible.builtin.yum_repository:
+    name: crb
+    description: CentOS Stream $releasever - CRB
+    metalink: "https://mirrors.centos.org/metalink?repo=centos-crb-$stream&arch=$basearch&protocol=https,http"
+    gpgcheck: true
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+    enabled: true
+  when:
+    - ansible_os_family == "RedHat"
+    - crb_check.rc != 0
+
+- name: Enable the CRB repository if it already exists (RedHat family)
+  ansible.builtin.command: dnf config-manager --set-enabled crb
+  changed_when: false
+  when:
+    - ansible_os_family == "RedHat"
+    - crb_check.rc == 0
+
+- name: Install build dependencies
+  ansible.builtin.package:
+    name: "{{ nagios_packages }}"
+    state: present

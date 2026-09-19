@@ -1,0 +1,63 @@
+---
+#Nagios Core
+- name: Download Nagios Core tarball
+  ansible.builtin.get_url:
+    url: "{{ nagios_core_url }}"
+    dest: "{{ nagios_build_dir }}/nagios-{{ nagios_version }}.tar.gz"
+    mode: "0644"
+
+- name: Extract Nagios Core source
+  ansible.builtin.unarchive:
+    src: "{{ nagios_build_dir }}/nagios-{{ nagios_version }}.tar.gz"
+    dest: "{{ nagios_build_dir }}"
+    remote_src: true
+    creates: "{{ nagios_build_dir }}/nagios-{{ nagios_version }}/configure"
+
+- name: Compile and install Nagios Core
+  ansible.builtin.shell: |
+    set -e
+    ./configure --with-httpd-conf={{ apache_conf_dir }}
+    make all
+    make install-groups-users
+    make install
+    make install-daemoninit
+    make install-commandmode
+    make install-config
+    make install-webconf
+  args:
+    chdir: "{{ nagios_build_dir }}/nagios-{{ nagios_version }}"
+    creates: "{{ nagios_install_dir }}/bin/nagios"
+  register: nagios_core_build
+  notify:
+    - restart apache
+    - restart nagios
+
+- name: Reload systemd so the nagios unit is picked up
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: nagios_core_build is changed
+
+#Nagios Plugins
+- name: Download Nagios Plugins tarball
+  ansible.builtin.get_url:
+    url: "{{ nagios_plugins_url }}"
+    dest: "{{ nagios_build_dir }}/nagios-plugins-{{ nagios_plugins_version }}.tar.gz"
+    mode: "0644"
+
+- name: Extract Nagios Plugins source
+  ansible.builtin.unarchive:
+    src: "{{ nagios_build_dir }}/nagios-plugins-{{ nagios_plugins_version }}.tar.gz"
+    dest: "{{ nagios_build_dir }}"
+    remote_src: true
+    creates: "{{ nagios_build_dir }}/nagios-plugins-{{ nagios_plugins_version }}/configure"
+
+- name: Compile and install Nagios Plugins
+  ansible.builtin.shell: |
+    set -e
+    ./configure
+    make
+    make install
+  args:
+    chdir: "{{ nagios_build_dir }}/nagios-plugins-{{ nagios_plugins_version }}"
+    creates: "{{ nagios_install_dir }}/libexec/check_ping"
+  notify: restart nagios
