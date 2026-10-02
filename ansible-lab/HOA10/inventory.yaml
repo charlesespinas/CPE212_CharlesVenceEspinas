@@ -1,0 +1,25 @@
+all:
+  vars:
+    ansible_user: charles-vence-espinas
+
+  children:
+    elasticsearch_node:
+      hosts:
+        server1:
+          ansible_host: 192.168.56.108
+
+    logstash_node:
+      hosts:
+        server2:
+          ansible_host: 192.168.56.109
+
+    kibana_node:
+      hosts:
+        centOS:
+          ansible_host: 192.168.56.104
+
+    elk_stack:
+      children:
+        elasticsearch_node:
+        logstash_node:
+        kibana_node:

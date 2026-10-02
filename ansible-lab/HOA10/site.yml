@@ -1,0 +1,24 @@
+---
+- name: Apply common configurations across all ELK nodes
+  hosts: elk_stack
+  become: true
+  roles:
+    - common
+
+- name: Install and configure Elasticsearch
+  hosts: elasticsearch_node
+  become: true
+  roles:
+    - elasticsearch
+
+- name: Install and configure Logstash
+  hosts: logstash_node
+  become: true
+  roles:
+    - logstash
+
+- name: Install and configure Kibana
+  hosts: kibana_node
+  become: true
+  roles:
+    - kibana
