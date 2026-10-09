@@ -1,0 +1,101 @@
+---
+- name: Setup Docker and Deploy Web DB Container
+  hosts: all
+  become: true
+  tasks:
+
+    # Install Docker and Python dependencies on Ubuntu
+    - name: Install Docker and Python SDK on Ubuntu
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - python3-pip
+          - python3-docker
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    # Set up Docker repository and install on CentOS
+    - name: Install Docker prerequisites on CentOS
+      ansible.builtin.yum:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+          - python3-pip
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Add Docker YUM repository on CentOS
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: '0644'
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Docker Engine on CentOS
+      ansible.builtin.yum:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Fix Python Docker SDK compatibility on CentOS
+      ansible.builtin.pip:
+        name:
+          - "requests<2.32.0"
+          - docker
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    # Enable and start Docker service
+    - name: Ensure Docker service is running and enabled
+      ansible.builtin.systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    # Add user to docker group
+    - name: Ensure docker group exists
+      ansible.builtin.group:
+        name: docker
+        state: present
+
+    - name: Add user to docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    # Copy Dockerfile to target hosts
+    - name: Create build directory on target hosts
+      ansible.builtin.file:
+        path: /tmp/docker_build
+        state: directory
+        mode: '0755'
+
+    - name: Copy Dockerfile to target hosts
+      ansible.builtin.copy:
+        src: Dockerfile
+        dest: /tmp/docker_build/Dockerfile
+
+    # Build image and start container
+    - name: Build web-db Docker image
+      community.docker.docker_image:
+        name: web-db-server
+        tag: latest
+        build:
+          path: /tmp/docker_build
+        source: build
+        state: present
+
+    - name: Run container
+      community.docker.docker_container:
+        name: my_web_db_container
+        image: web-db-server:latest
+        state: started
+        published_ports:
+          - "8080:80"
+          - "3307:3306"
