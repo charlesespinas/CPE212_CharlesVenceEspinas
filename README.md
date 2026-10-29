@@ -1,4 +1,4 @@
-#CPE212_CharlesVenceEspinas
+# CPE212_CharlesVenceEspinas
 
 ## CPE212 - Automating Server Management
 
@@ -9,6 +9,6 @@ configurations, and automation scripts developed throughout the course.
 
 ## Personal  Information
 * **Name:** Charles Vence Espinas
-* **Course:** CPEP 212 - Automating Server Management
+* **Course:** CPE 212 - Automating Server Management
 
 ---
