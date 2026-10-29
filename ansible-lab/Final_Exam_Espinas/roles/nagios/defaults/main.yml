@@ -1,0 +1,12 @@
+---
+nagios_version: "4.4.14"
+nagios_plugins_version: "2.4.6"
+
+nagios_core_url: "https://assets.nagios.com/downloads/nagioscore/releases/nagios-{{ nagios_version }}.tar.gz"
+nagios_plugins_url: "https://github.com/nagios-plugins/nagios-plugins/releases/download/release-{{ nagios_plugins_version }}/nagios-plugins-{{ nagios_plugins_version }}.tar.gz"
+
+nagios_install_dir: /usr/local/nagios
+nagios_build_dir: /tmp
+
+nagios_admin_user: charles-vence-espinas
+nagios_admin_password: "Password123!"

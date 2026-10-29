@@ -1,0 +1,20 @@
+---
+- name: Install Logstash
+  package:
+    name: logstash
+    state: present
+
+- name: Configure Logstash beats input pipeline
+  template:
+    src: 02-beats-input.conf.j2
+    dest: /etc/logstash/conf.d/02-beats-input.conf
+    owner: logstash
+    group: logstash
+    mode: '0644'
+  notify: restart logstash
+
+- name: Enable and start Logstash service
+  systemd:
+    name: logstash
+    enabled: yes
+    state: started

@@ -1,0 +1,40 @@
+---
+- name: Install and Configure Nagios Core across Ubuntu and CentOS
+  hosts: linux_servers
+  become: true
+  roles:
+    - nagios
+
+- name: Apply common configurations across all ELK nodes
+  hosts: linux_servers
+  become: true
+  roles:
+    - common
+
+- name: Install and configure Elasticsearch
+  hosts: linux_servers
+  become: true
+  roles:
+    - elasticsearch
+
+- name: Install and configure Logstash
+  hosts: linux_servers
+  become: true
+  roles:
+    - logstash
+
+- name: Install and configure Kibana
+  hosts: linux_servers
+  become: true
+  roles:
+    - kibana
+
+- name: Set MOTD message
+  hosts: linux_servers
+  become: true
+  tasks:
+    - name: Copy MOTD content
+      copy:
+        dest: /etc/motd
+        content: "Ansible Managed by {{ motd_username }}\n"
+        mode: '0644'

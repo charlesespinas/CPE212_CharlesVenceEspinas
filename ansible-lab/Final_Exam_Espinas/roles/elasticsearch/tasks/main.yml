@@ -1,0 +1,57 @@
+---
+- name: Install Elasticsearch
+  package:
+    name: elasticsearch
+    state: present
+
+- name: Ensure Elasticsearch data and log directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+    mode: '0755'
+  loop:
+    - /var/lib/elasticsearch
+    - /var/log/elasticsearch
+
+- name: Limit JVM heap size to 512MB
+  copy:
+    dest: /etc/elasticsearch/jvm.options.d/heap.options
+    content: |
+      -Xms512m
+      -Xmx512m
+    owner: elasticsearch
+    group: elasticsearch
+    mode: '0644'
+
+- name: Configure elasticsearch.yml
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: elasticsearch
+    group: elasticsearch
+    mode: '0660'
+  notify: restart elasticsearch
+
+- name: Enable and start Elasticsearch service
+  systemd:
+    name: elasticsearch
+    enabled: yes
+    state: started
+
+- name: Allow Elasticsearch port 9200 on Debian/Ubuntu (UFW)
+  ufw:
+    rule: allow
+    port: '9200'
+    proto: tcp
+    state: enabled
+  when: ansible_os_family == "Debian"
+
+- name: Allow Elasticsearch port 9200 on RHEL/CentOS (firewalld)
+  firewalld:
+    port: 9200/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  when: ansible_os_family == "RedHat"

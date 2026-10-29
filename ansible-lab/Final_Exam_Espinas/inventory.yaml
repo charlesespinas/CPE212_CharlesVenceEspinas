@@ -1,0 +1,25 @@
+all:
+  vars:
+    ansible_user: charles-vence-espinas
+
+  children:
+      Ubuntu_servers:
+        hosts:
+          server1:
+            ansible_host: 192.168.121.9
+            os_type: Ubuntu
+
+          server2:
+            ansible_host: 192.168.121.5
+            os_type: Ubuntu
+
+      CentOS_servers:
+        hosts:
+          centOS:
+            ansible_host: 192.168.121.6
+            os_type: CentOS
+
+      linux_servers:
+        children:
+          Ubuntu_servers:
+          CentOS_servers:
